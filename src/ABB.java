@@ -10,8 +10,12 @@ public class ABB<K, V> implements IMapeamento<K, V>{
 	private Comparator<K> comparador; //comparador empregado para definir "menores" e "maiores".
 	private int tamanho;
 
+    private long comparacoesTotais = 0;
     private long comparacoes;
     private double tempo;
+    private double tempoTotal = 0;
+    
+
 	
 	/**
 	 * Método auxiliar para inicialização da árvore binária de busca.
@@ -109,6 +113,8 @@ public class ABB<K, V> implements IMapeamento<K, V>{
         V item = pesquisar(raiz, chave);
         LocalDateTime fim = LocalDateTime.now();
         tempo = Duration.between(inicio, fim).toNanos();
+        comparacoesTotais += comparacoes;
+        tempoTotal += tempo;
     	return item; 
     }
     
@@ -119,7 +125,8 @@ public class ABB<K, V> implements IMapeamento<K, V>{
         comparacoes++;
     	if (raizArvore == null)
     		/// Se a raiz da árvore ou sub-árvore for null, a árvore/sub-árvore está vazia e então o item não foi encontrado.
-    		throw new NoSuchElementException("O item não foi localizado na árvore!");
+    		return null;
+            
     	
     	comparacao = comparador.compare(procurado, raizArvore.getChave());
     	
@@ -245,10 +252,10 @@ public class ABB<K, V> implements IMapeamento<K, V>{
     	if (raizSubArvore == null)
     		/// Se a raiz da árvore ou sub-árvore for null, a árvore/sub-árvore está vazia e então o item não foi encontrado.
     		throw new NoSuchElementException("O item não foi localizado na árvore!");
-    	
+
     	comparacao = comparador.compare(chave, raizSubArvore.getChave());
     	
-        comparacoes++;   
+        comparacoes++;
     	if (comparacao == 0){
     		/// O item procurado foi encontrado.
             int grau = raizSubArvore.grau();
@@ -300,4 +307,10 @@ public class ABB<K, V> implements IMapeamento<K, V>{
 	public double getTempo() {
 		return tempo;
 	}
+    public long getComparacoesTotais() {
+        return comparacoesTotais;
+    }
+    public double getTempoTotal() {
+        return tempoTotal;
+    }
 }

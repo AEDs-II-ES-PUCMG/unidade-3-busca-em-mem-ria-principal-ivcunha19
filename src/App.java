@@ -180,7 +180,7 @@ public class App {
     }
 
     private static void inserirNaTabela(Produto produto, Pedido pedido) {
-        // TODO
+        
     }
 
     private static void recortarArvore(ABB<String, Produto> arvore) {
