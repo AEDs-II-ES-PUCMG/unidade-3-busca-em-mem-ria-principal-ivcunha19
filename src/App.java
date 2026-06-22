@@ -1,5 +1,4 @@
 import java.nio.charset.Charset;
-import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.function.Function;
@@ -21,8 +20,8 @@ public class App {
     /** Quantidade de produtos cadastrados atualmente na lista */
     static int quantosProdutos = 0;
 
-    static ABB<Integer, Produto> produtosPorId;
-    static ABB<String, Produto> produtosPorNome;
+    static ABB<Integer, Produto> produtosPorId = new AVL<Integer, Produto>();
+    static ABB<String, Produto> produtosPorNome = new AVL<String, Produto>();
     static TabelaHash<Produto, Lista<Pedido>> pedidosPorProduto;
 
     /** Limpa o buffer do console, simulando uma limpeza de tela num terminal vt-100 */
@@ -114,6 +113,8 @@ public class App {
                 produto = Produto.criarDoTexto(linha);
                 T chave = extratorDeChave.apply(produto);
                 produtosCadastrados.inserir(chave, produto);
+                produtosPorId.inserir(produto.hashCode(), produto);
+                produtosPorNome.inserir(produto.descricao, produto);
             }
             quantosProdutos = produtosCadastrados.tamanho();
 
@@ -180,7 +181,14 @@ public class App {
     }
 
     private static void inserirNaTabela(Produto produto, Pedido pedido) {
-        
+        Lista<Pedido> lista;
+        try {
+            lista = pedidosPorProduto.pesquisar(produto);
+        } catch (java.util.NoSuchElementException e) {
+            lista = new Lista<>();
+            pedidosPorProduto.inserir(produto, lista);
+        }
+        lista.inserir(pedido);
     }
 
     private static void recortarArvore(ABB<String, Produto> arvore) {
@@ -207,6 +215,9 @@ public class App {
         }
     }
 
+    static void percorrerArvore(){
+        System.out.print(produtosPorNome.percorrer());
+    }
     public static void main(String[] args) {
         teclado = new Scanner(System.in, Charset.forName("UTF-8"));
         nomeArquivoDados = "produtos.txt";
@@ -223,6 +234,7 @@ public class App {
                 case 1 -> localizarProdutoID();
                 case 2 -> recortarArvore(produtosPorNome);
                 case 3 -> pedidosDoProduto();
+                case 4 -> percorrerArvore();
             }
             pausa();
         } while (opcao != 0);
